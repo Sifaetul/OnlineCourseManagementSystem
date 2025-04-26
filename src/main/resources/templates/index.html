@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Course Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body style="background-color: #f8f9fa;">
+
+<div class="container py-5">
+    <h1 class="mb-4 text-center">🎓 Online Course Management System</h1>
+
+    <div class="input-group mb-4">
+        <input type="text" id="searchCourseInput" class="form-control" placeholder="Search Course by ID...">
+        <button class="btn btn-primary" onclick="searchCourse()">Search</button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Courses</h5>
+                    <button class="btn btn-success" onclick="viewCourseDetails(1)">View Course Details</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Teachers</h5>
+                    <button class="btn btn-warning" onclick="viewTeacherDetails(1)">View Teacher Details</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Students</h5>
+                    <button class="btn btn-info" onclick="viewStudentDetails(1)">View Student Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="detailModalLabel">Details</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                Loading...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Axios calls for Courses
+    function viewCourseDetails(courseId) {
+        showLoading();
+        axios.get(`/api/course/${courseId}`)
+            .then(response => {
+                const course = response.data;
+                document.getElementById('detailModalLabel').innerText = "Course Details";
+                document.getElementById('modalBodyContent').innerHTML = `
+                    <strong>Title:</strong> ${course.title}<br>
+                    <strong>Description:</strong> ${course.description}<br>
+                `;
+                openModal();
+            })
+            .catch(error => {
+                showError("Course not found!");
+            });
+    }
+
+    // Axios calls for Teachers
+    function viewTeacherDetails(teacherId) {
+        showLoading();
+        axios.get(`/api/teacher/${teacherId}`)
+            .then(response => {
+                const teacher = response.data;
+                document.getElementById('detailModalLabel').innerText = "Teacher Details";
+                document.getElementById('modalBodyContent').innerHTML = `
+                    <strong>Name:</strong> ${teacher.name}<br>
+                    <strong>Email:</strong> ${teacher.email}<br>
+                `;
+                openModal();
+            })
+            .catch(error => {
+                showError("Teacher not found!");
+            });
+    }
+
+    // Axios calls for Students
+    function viewStudentDetails(studentId) {
+        showLoading();
+        axios.get(`/api/student/${studentId}`)
+            .then(response => {
+                const student = response.data;
+                document.getElementById('detailModalLabel').innerText = "Student Details";
+                document.getElementById('modalBodyContent').innerHTML = `
+                    <strong>Name:</strong> ${student.name}<br>
+                    <strong>Email:</strong> ${student.email}<br>
+                `;
+                openModal();
+            })
+            .catch(error => {
+                showError("Student not found!");
+            });
+    }
+
+    // Search course by ID
+    function searchCourse() {
+        const input = document.getElementById('searchCourseInput').value;
+        if (!input) {
+            alert("Please enter a Course ID to search.");
+            return;
+        }
+        viewCourseDetails(input);
+    }
+
+    // Utility Functions
+    function showLoading() {
+        document.getElementById('modalBodyContent').innerHTML = "Loading...";
+    }
+
+    function showError(message) {
+        document.getElementById('detailModalLabel').innerText = "Error";
+        document.getElementById('modalBodyContent').innerHTML = message;
+        openModal();
+    }
+
+    function openModal() {
+        const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+        detailModal.show();
+    }
+</script>
+
+</body>
+</html>
